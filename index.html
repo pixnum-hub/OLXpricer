@@ -4,20 +4,150 @@
 <meta charset="UTF-8">
 <title>OLXpricer -  AI Pricing Lite V6</title>
 <style>
-body{margin:0;font-family:Arial;background:#e0e0e0;transition:0.3s;}
-.dark{background:#1c1c1c;color:white;}
-.app{max-width:480px;margin:20px auto;padding:20px;border-radius:25px;background:#e0e0e0;box-shadow:9px 9px 18px #b8b8b8,-9px -9px 18px #ffffff;}
-.dark .app{background:#1c1c1c;box-shadow:9px 9px 18px #0c0c0c,-9px -9px 18px #2a2a2a;}
-input, select{width:100%;padding:10px;margin:8px 0;border:none;border-radius:12px;background:#e0e0e0;box-shadow:inset 4px 4px 8px #c6c6c6,inset -4px -4px 8px #ffffff;outline:none;}
-.dark input, .dark select{background:#1c1c1c;box-shadow:inset 4px 4px 8px #121212,inset -4px -4px 8px #303030;color:white;}
-button{width:100%;padding:10px;border:none;border-radius:12px;margin-top:10px;font-weight:bold;cursor:pointer;background:#e0e0e0;box-shadow:4px 4px 8px #c6c6c6,-4px -4px 8px #ffffff;}
-.dark button{background:#1c1c1c;box-shadow:4px 4px 8px #121212,-4px -4px 8px #303030;color:white;}
-button:active{box-shadow:inset 4px 4px 8px #c6c6c6,inset -4px -4px 8px #ffffff;}
-.darkBtn{position:fixed;top:15px;right:15px;width:40px;height:40px;border-radius:50%;border:none;font-size:20px;cursor:pointer;background:#e0e0e0;box-shadow:4px 4px 8px #c6c6c6,-4px -4px 8px #ffffff;}
-.dark .darkBtn{background:#1c1c1c;color:white;box-shadow:4px 4px 8px #121212,-4px -4px 8px #303030;}
-.result, #savedItems{margin-top:15px;padding:12px;border-radius:12px;background:#e0e0e0;box-shadow:inset 4px 4px 8px #b8b8b8,inset -4px -4px 8px #ffffff;overflow:auto;}
-.dark .result, .dark #savedItems{background:#1c1c1c;box-shadow:inset 4px 4px 8px #121212,inset -4px -4px 8px #303030;}
-img{max-width:100%;border-radius:12px;margin-top:10px;}
+/* MOBILE-FIRST UI DESIGN */
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #e0e0e0;
+  transition: 0.3s;
+  font-size: 16px;
+}
+
+.dark {
+  background: #1c1c1c;
+  color: white;
+}
+
+/* APP CONTAINER – MOBILE FIRST FULL WIDTH */
+.app {
+  width: 100%;
+  max-width: 100%;
+  padding: 18px;
+  margin: 0;
+  border-radius: 0;
+  background: #e0e0e0;
+
+  /* NEOMORPHISM OPTIMIZED FOR MOBILE */
+  box-shadow:
+    5px 5px 10px #c2c2c2,
+    -5px -5px 10px #ffffff;
+}
+
+.dark .app {
+  background: #1c1c1c;
+  box-shadow:
+    5px 5px 10px #121212,
+    -5px -5px 10px #303030;
+}
+
+/* FORM ELEMENTS – BIGGER FOR TOUCH */
+input, select {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 12px;
+  font-size: 17px;
+
+  background: #e0e0e0;
+  box-shadow:
+    inset 3px 3px 6px #c6c6c6,
+    inset -3px -3px 6px #ffffff;
+}
+
+.dark input, .dark select {
+  background: #1c1c1c;
+  color: white;
+  box-shadow:
+    inset 3px 3px 6px #121212,
+    inset -3px -3px 6px #303030;
+}
+
+/* BUTTONS – LARGER + MORE TAPPABLE */
+button {
+  width: 100%;
+  padding: 16px;
+  font-size: 17px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  margin-top: 12px;
+
+  background: #e0e0e0;
+  box-shadow:
+    4px 4px 8px #c6c6c6,
+    -4px -4px 8px #ffffff;
+}
+
+.dark button {
+  background: #1c1c1c;
+  color: white;
+  box-shadow:
+    4px 4px 8px #121212,
+    -4px -4px 8px #303030;
+}
+
+button:active {
+  box-shadow:
+    inset 3px 3px 6px #c6c6c6,
+    inset -3px -3px 6px #ffffff;
+}
+
+/* DARK MODE BUTTON – LARGER & FIXED */
+.darkBtn {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+
+  background: #e0e0e0;
+  box-shadow:
+    4px 4px 8px #c6c6c6,
+    -4px -4px 8px #ffffff;
+}
+
+.dark .darkBtn {
+  background: #1c1c1c;
+  color: white;
+  box-shadow:
+    4px 4px 8px #121212,
+    -4px -4px 8px #303030;
+}
+
+/* RESULT & SAVED BOXES */
+.result, #savedItems {
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 14px;
+  font-size: 16px;
+
+  background: #e0e0e0;
+  box-shadow:
+    inset 3px 3px 7px #b8b8b8,
+    inset -3px -3px 7px #ffffff;
+}
+
+.dark .result, .dark #savedItems {
+  background: #1c1c1c;
+  box-shadow:
+    inset 3px 3px 7px #121212,
+    inset -3px -3px 7px #303030;
+}
+
+/* IMAGE PREVIEW — FULL WIDTH MOBILE */
+img {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 12px;
+  margin-top: 10px;
+}
 </style>
 </head>
 <body>
