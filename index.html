@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>OLXpricer -  AI Pricing Lite V6</title>
+<style>
+body{margin:0;font-family:Arial;background:#e0e0e0;transition:0.3s;}
+.dark{background:#1c1c1c;color:white;}
+.app{max-width:480px;margin:20px auto;padding:20px;border-radius:25px;background:#e0e0e0;box-shadow:9px 9px 18px #b8b8b8,-9px -9px 18px #ffffff;}
+.dark .app{background:#1c1c1c;box-shadow:9px 9px 18px #0c0c0c,-9px -9px 18px #2a2a2a;}
+input, select{width:100%;padding:10px;margin:8px 0;border:none;border-radius:12px;background:#e0e0e0;box-shadow:inset 4px 4px 8px #c6c6c6,inset -4px -4px 8px #ffffff;outline:none;}
+.dark input, .dark select{background:#1c1c1c;box-shadow:inset 4px 4px 8px #121212,inset -4px -4px 8px #303030;color:white;}
+button{width:100%;padding:10px;border:none;border-radius:12px;margin-top:10px;font-weight:bold;cursor:pointer;background:#e0e0e0;box-shadow:4px 4px 8px #c6c6c6,-4px -4px 8px #ffffff;}
+.dark button{background:#1c1c1c;box-shadow:4px 4px 8px #121212,-4px -4px 8px #303030;color:white;}
+button:active{box-shadow:inset 4px 4px 8px #c6c6c6,inset -4px -4px 8px #ffffff;}
+.darkBtn{position:fixed;top:15px;right:15px;width:40px;height:40px;border-radius:50%;border:none;font-size:20px;cursor:pointer;background:#e0e0e0;box-shadow:4px 4px 8px #c6c6c6,-4px -4px 8px #ffffff;}
+.dark .darkBtn{background:#1c1c1c;color:white;box-shadow:4px 4px 8px #121212,-4px -4px 8px #303030;}
+.result, #savedItems{margin-top:15px;padding:12px;border-radius:12px;background:#e0e0e0;box-shadow:inset 4px 4px 8px #b8b8b8,inset -4px -4px 8px #ffffff;overflow:auto;}
+.dark .result, .dark #savedItems{background:#1c1c1c;box-shadow:inset 4px 4px 8px #121212,inset -4px -4px 8px #303030;}
+img{max-width:100%;border-radius:12px;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<button class="darkBtn" onclick="toggleDark()">🌓</button>
+
+<div class="app">
+<h2 style="text-align:center;">OLXpricer</h2>
+
+<label>Product Name</label>
+<input id="pname" placeholder="e.g., Vintage Camera">
+
+<label>Upload Product Image</label>
+<input type="file" id="pimage" accept="image/*">
+<img id="preview" src="" style="display:none;">
+
+<label>Expected Base Price (₹)</label>
+<input type="number" id="expected" placeholder="Enter expected price">
+
+<label>Years Old</label>
+<input type="number" id="yearsOld" value="0" placeholder="Age of product in years">
+
+<label>Condition</label>
+<select id="condition">
+<option value="1.1">Excellent</option>
+<option value="1.0">Good</option>
+<option value="0.9">Fair</option>
+<option value="0.8">Poor</option>
+</select>
+
+<label>Local Market</label>
+<select id="localMarket">
+<option value="1.2">Metro</option>
+<option value="1.0">Tier-2</option>
+<option value="0.9">Rural</option>
+</select>
+
+<label>Demand Level</label>
+<select id="demand">
+<option value="1">Low</option>
+<option value="1.15">Medium</option>
+<option value="1.3">High</option>
+</select>
+
+<label>Profit Target (%)</label>
+<input id="profit" value="5">
+
+<button id="generateBtn" disabled>Loading Model...</button>
+
+<div class="result" id="output">Upload an image and enter details above.</div>
+
+<button onclick="saveItem()">Save This Listing</button>
+
+<h3>📂 Saved Listings</h3>
+<div id="savedItems">No saved items yet.</div>
+
+<button onclick="exportSaved()">Export Saved Listings</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.12.2/ml5.min.js"></script>
+<script>
+function toggleDark(){document.body.classList.toggle("dark");}
+
+/* Load ML5 Model */
+let classifier;
+ml5.imageClassifier('MobileNet').then(c=>{
+  classifier=c;
+  const btn=document.getElementById("generateBtn");
+  btn.disabled=false;
+  btn.textContent="Generate Pricing & Listing";
+}).catch(err=>console.error(err));
+
+/* Preview Image */
+document.getElementById("pimage").addEventListener("change", function(e){
+  const file=e.target.files[0];
+  if(file){
+    const reader=new FileReader();
+    reader.onload=function(event){
+      const img=document.getElementById("preview");
+      img.src=event.target.result;
+      img.style.display="block";
+    }
+    reader.readAsDataURL(file);
+  }
+});
+
+/* Generate Pricing */
+document.getElementById("generateBtn").addEventListener("click", ()=>{
+  const name=document.getElementById("pname").value;
+  const expected=parseFloat(document.getElementById("expected").value);
+  const yearsOld=parseFloat(document.getElementById("yearsOld").value);
+  const condition=parseFloat(document.getElementById("condition").value);
+  const localMarket=parseFloat(document.getElementById("localMarket").value);
+  const demand=parseFloat(document.getElementById("demand").value);
+  const profit=parseFloat(document.getElementById("profit").value);
+  const img=document.getElementById("preview");
+
+  if(!expected || expected<1){document.getElementById("output").innerHTML="Enter a valid price."; return;}
+  if(!img.src){document.getElementById("output").innerHTML="Upload an image."; return;}
+
+  classifier.classify(img).then(results=>{
+    const detected=results[0].label.toLowerCase();
+    let categoryMultiplier=1;
+    if(detected.includes("camera")) categoryMultiplier=1.2;
+    else if(detected.includes("phone")) categoryMultiplier=1.15;
+    else if(detected.includes("chair")) categoryMultiplier=1.1;
+    else if(detected.includes("sofa")) categoryMultiplier=1.1;
+    else if(detected.includes("laptop")) categoryMultiplier=1.2;
+    else categoryMultiplier=1.05;
+
+    const depreciation=1-(yearsOld*0.05);
+    const listingPrice=expected*categoryMultiplier*condition*localMarket*demand*depreciation;
+    const profitTarget=expected+(expected*profit/100);
+    const offer90=expected*0.9, offer80=expected*0.8, offer70=expected*0.7;
+    const lowball=expected*0.75;
+
+    const minPrice=listingPrice*0.95, maxPrice=listingPrice*1.05;
+    const usd=(listingPrice/83).toFixed(2), eur=(listingPrice/91).toFixed(2), gbp=(listingPrice/105).toFixed(2);
+
+    const tags=detected.split(" ").slice(0,3).join(", ");
+    const alerts=listingPrice>expected*1.25? "Hot Item! High demand." : "None";
+
+    const autoTitle=name!==""?name+" – "+detected.charAt(0).toUpperCase()+detected.slice(1)+" – Best Price":"Premium Product – Good Condition";
+    const autoDesc=`<b>Condition:</b> Selected (${condition})<br><b>Detected:</b> ${detected}<br><b>Tags:</b> ${tags}<br><b>Price:</b> Slightly negotiable`;
+    const negotiation=`<b>Buyer:</b> "Last price?"<br><b>You:</b> "Price is slightly negotiable after inspection."`;
+
+    document.getElementById("output").innerHTML=`
+    <b>🔵 Recommended Price:</b> ₹${listingPrice.toFixed(0)}<br>
+    <b>🟢 Profit Target:</b> ₹${profitTarget.toFixed(0)}<br>
+    <b>🟡 Buyer Offers:</b> 90%: ₹${offer90.toFixed(0)}, 80%: ₹${offer80.toFixed(0)}, 70%: ₹${offer70.toFixed(0)}<br>
+    <b>🔴 Lowball:</b> Below ₹${lowball.toFixed(0)}<br>
+    <b>📊 Price Range:</b> ₹${minPrice.toFixed(0)} - ₹${maxPrice.toFixed(0)}<br>
+    <b>💱 Currency:</b> USD: $${usd}, EUR: €${eur}, GBP: £${gbp}<br>
+    <b>⚡ Alerts:</b> ${alerts}<br><br>
+    <b>📌 Auto Title:</b><br>${autoTitle}<br>
+    <b>📄 Auto Description:</b><br>${autoDesc}<br>
+    <b>💬 Negotiation Script:</b><br>${negotiation}
+    `;
+  }).catch(err=>console.error(err));
+});
+
+/* Save Listing */
+function saveItem(){
+  const name=document.getElementById("pname").value;
+  const price=document.getElementById("expected").value;
+  const img=document.getElementById("preview").src;
+  if(!name||!price){alert("Enter product name and price."); return;}
+  const item={name:name, price:price, img:img||""};
+  const list=JSON.parse(localStorage.getItem("olxItems")||"[]");
+  list.push(item);
+  localStorage.setItem("olxItems", JSON.stringify(list));
+  loadSaved();
+}
+
+/* Load Saved Listings */
+function loadSaved(){
+  const list=JSON.parse(localStorage.getItem("olxItems")||"[]");
+  if(list.length===0){document.getElementById("savedItems").innerHTML="No saved items yet."; return;}
+  let html="";
+  list.forEach((x,i)=>{html+=`<b>${i+1}.</b> ${x.name} – ₹${x.price}${x.img?`<br><img src="${x.img}" style="max-width:100px;">`:""}<br>`});
+  document.getElementById("savedItems").innerHTML=html;
+}
+loadSaved();
+
+/* Export Listings */
+function exportSaved(){
+  const list=JSON.parse(localStorage.getItem("olxItems")||"[]");
+  if(list.length===0){alert("No saved items."); return;}
+  let data="Saved OLX Listings:\n\n";
+  list.forEach((x,i)=>{data+=`${i+1}. ${x.name} – ₹${x.price}\n`});
+  const blob=new Blob([data], {type:"text/plain"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="OLX_Listings.txt";
+  a.click();
+}
+</script>
+</body>
+</html>
