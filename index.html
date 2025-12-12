@@ -2,21 +2,72 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>OLXpricer - OLX AI Pricing Mobile v7</title>
+<title>OLXpricer - OLX AI Pricing Mobile v8</title>
+<!-- VIEWPORT FIX FOR MOBILE -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
 <style>
 /* MOBILE-FIRST UI DESIGN */
 body{margin:0;font-family:Arial,sans-serif;background:#e0e0e0;transition:0.3s;font-size:16px;}
 .dark{background:#1c1c1c;color:white;}
-.app{width:100%;max-width:100%;padding:18px;margin:0;border-radius:0;background:#e0e0e0;box-shadow:5px 5px 10px #c2c2c2,-5px -5px 10px #ffffff;}
+.app{
+  width:95%;
+  max-width:480px;
+  margin:10px auto;
+  padding:18px;
+  border-radius:20px;
+  background:#e0e0e0;
+  box-shadow:5px 5px 10px #c2c2c2,-5px -5px 10px #ffffff;
+}
 .dark .app{background:#1c1c1c;box-shadow:5px 5px 10px #121212,-5px -5px 10px #303030;}
-input, select{width:100%;padding:14px;margin:10px 0;border:none;border-radius:12px;font-size:17px;background:#e0e0e0;box-shadow:inset 3px 3px 6px #c6c6c6,inset -3px -3px 6px #ffffff;outline:none;}
+input, select{
+  width:100%;
+  padding:16px;
+  margin:10px 0;
+  border:none;
+  border-radius:14px;
+  font-size:17px;
+  background:#e0e0e0;
+  box-shadow:inset 3px 3px 6px #c6c6c6,inset -3px -3px 6px #ffffff;
+  outline:none;
+}
 .dark input, .dark select{background:#1c1c1c;color:white;box-shadow:inset 3px 3px 6px #121212,inset -3px -3px 6px #303030;}
-button{width:100%;padding:16px;font-size:17px;border:none;border-radius:14px;cursor:pointer;margin-top:12px;background:#e0e0e0;box-shadow:4px 4px 8px #c6c6c6,-4px -4px 8px #ffffff;}
+button{
+  width:100%;
+  padding:18px;
+  font-size:18px;
+  border:none;
+  border-radius:16px;
+  cursor:pointer;
+  margin-top:12px;
+  background:#e0e0e0;
+  box-shadow:4px 4px 8px #c6c6c6,-4px -4px 8px #ffffff;
+}
 .dark button{background:#1c1c1c;color:white;box-shadow:4px 4px 8px #121212,-4px -4px 8px #303030;}
 button:active{box-shadow:inset 3px 3px 6px #c6c6c6,inset -3px -3px 6px #ffffff;}
-.darkBtn{position:fixed;top:15px;right:15px;width:50px;height:50px;font-size:24px;border:none;border-radius:50%;cursor:pointer;background:#e0e0e0;box-shadow:4px 4px 8px #c6c6c6,-4px -4px 8px #ffffff;}
+.darkBtn{
+  position:fixed;
+  top:15px;
+  right:15px;
+  width:50px;
+  height:50px;
+  font-size:24px;
+  border:none;
+  border-radius:50%;
+  cursor:pointer;
+  background:#e0e0e0;
+  box-shadow:4px 4px 8px #c6c6c6,-4px -4px 8px #ffffff;
+}
 .dark .darkBtn{background:#1c1c1c;color:white;box-shadow:4px 4px 8px #121212,-4px -4px 8px #303030;}
-.result, #savedItems{margin-top:15px;padding:15px;border-radius:14px;font-size:16px;background:#e0e0e0;box-shadow:inset 3px 3px 7px #b8b8b8,inset -3px -3px 7px #ffffff;overflow:auto;}
+.result, #savedItems{
+  margin-top:15px;
+  padding:15px;
+  border-radius:16px;
+  font-size:16px;
+  background:#e0e0e0;
+  box-shadow:inset 3px 3px 7px #b8b8b8,inset -3px -3px 7px #ffffff;
+  overflow:auto;
+}
 .dark .result, .dark #savedItems{background:#1c1c1c;box-shadow:inset 3px 3px 7px #121212,inset -3px -3px 7px #303030;}
 img{width:100%;max-width:100%;border-radius:12px;margin-top:10px;}
 </style>
@@ -81,8 +132,6 @@ img{width:100%;max-width:100%;border-radius:12px;margin-top:10px;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/0.12.2/ml5.min.js"></script>
 <script>
 function toggleDark(){document.body.classList.toggle("dark");}
-
-/* ML5 Model */
 let classifier;
 ml5.imageClassifier('MobileNet').then(c=>{
   classifier=c;
@@ -91,7 +140,6 @@ ml5.imageClassifier('MobileNet').then(c=>{
   btn.textContent="Generate Pricing & Listing";
 }).catch(err=>console.error(err));
 
-/* Preview Image */
 document.getElementById("pimage").addEventListener("change", function(e){
   const file=e.target.files[0];
   if(file){
@@ -105,7 +153,6 @@ document.getElementById("pimage").addEventListener("change", function(e){
   }
 });
 
-/* Generate Pricing */
 document.getElementById("generateBtn").addEventListener("click", ()=>{
   const name=document.getElementById("pname").value;
   const expected=parseFloat(document.getElementById("expected").value);
@@ -160,7 +207,6 @@ document.getElementById("generateBtn").addEventListener("click", ()=>{
   }).catch(err=>console.error(err));
 });
 
-/* Save Listing */
 function saveItem(){
   const name=document.getElementById("pname").value;
   const price=document.getElementById("expected").value;
@@ -173,7 +219,6 @@ function saveItem(){
   loadSaved();
 }
 
-/* Load Saved Listings */
 function loadSaved(){
   const list=JSON.parse(localStorage.getItem("olxItems")||"[]");
   if(list.length===0){document.getElementById("savedItems").innerHTML="No saved items yet."; return;}
@@ -183,7 +228,6 @@ function loadSaved(){
 }
 loadSaved();
 
-/* Export Listings */
 function exportSaved(){
   const list=JSON.parse(localStorage.getItem("olxItems")||"[]");
   if(list.length===0){alert("No saved items."); return;}
